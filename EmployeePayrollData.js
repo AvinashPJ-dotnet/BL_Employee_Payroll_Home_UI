@@ -95,6 +95,7 @@ const createEmployeePayroll = () =>{
     } catch (e) {
         setTextValue('.text-error',e);
     }
+    employeePayrollData._id = new Date().getTime()+1;
     employeePayrollData.profilePic = getSelectedRadioValues('input[name=profile]:checked');
     employeePayrollData.gender = getSelectedRadioValues('input[name=gender]:checked');
     employeePayrollData.department = getSelectedCheckBoxValues('input[name=department]:checked');
