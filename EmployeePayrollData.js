@@ -40,17 +40,22 @@ class EmployeePayrollData{
 }
 
 
+let isUpdate = false;
+let employeePayrollObj = {};
+
+
 window.addEventListener('DOMContentLoaded',(event)=>{
-    const name = document.querySelector('#name');
+    const nameValue = document.querySelector('#name');
     const textError = document.querySelector('.text-error')
-    // let employeePayrollData = new EmployeePayrollData();
-    name.addEventListener('input',function () {
-        if(name.value.length == 0){
+    let employeePayrollData = new EmployeePayrollData();
+    nameValue.addEventListener('input',function () {
+        if(nameValue.value.length == 0){
             textError.textContent = "";
             return;
         }
         try{
-            (new EmployeePayrollData()).name = name.value;
+            // (new EmployeePayrollData()).name = nameValue.value;
+            employeePayrollData.name = nameValue.value;
             textError.textContent = "";
 
         }catch(e){
@@ -64,6 +69,8 @@ window.addEventListener('DOMContentLoaded',(event)=>{
     salary.addEventListener('input',function () {
         salaryError.textContent = salary.value;
     });
+
+    checkForUpdate();
 })
 
 const save = () =>{
@@ -95,7 +102,7 @@ const createEmployeePayroll = () =>{
     } catch (e) {
         setTextValue('.text-error',e);
     }
-    employeePayrollData._id = new Date().getTime()+1;
+    employeePayrollData.id = new Date().getTime()+1;
     employeePayrollData.profilePic = getSelectedRadioValues('input[name=profile]:checked');
     employeePayrollData.gender = getSelectedRadioValues('input[name=gender]:checked');
     employeePayrollData.department = getSelectedCheckBoxValues('input[name=department]:checked');
@@ -106,6 +113,16 @@ const createEmployeePayroll = () =>{
     alert(employeePayrollData.toString());
     return employeePayrollData;
 }
+
+const checkForUpdate = ()=> {
+    const employeePayrollJson = localStorage.getItem('editEmp');
+    isUpdate = employeePayrollJson ? true : false;
+    if(!isUpdate) return ;
+    employeePayrollObj = JSON.parse(employeePayrollJson);
+    setForm();
+}
+
+
 
 const getSelectedRadioValues = (propertyValue)=>{
     let selectedItem = document.querySelector(propertyValue).value;
@@ -138,7 +155,22 @@ const getInputElementValue = (id) =>{
     return value;
 }
 
-//reset form
+//setform values
+const setForm = () =>{
+    setValue('#name', employeePayrollObj._name);
+    setSelectedValue('[name = profile]', employeePayrollObj._profilePic);
+    setSelectedValue('[name = gender]', employeePayrollObj._gender);
+    setSelectedValue('[name = department]', employeePayrollObj._department);
+    setValue('#salary', employeePayrollObj._salary);
+    setValue('.salary-output', employeePayrollObj._salary);
+    setValue('#notes', employeePayrollObj._note);
+    let date = stringifyDate(employeePayrollObj._startDate).split(" ");
+    setValue('#day', date[0]);
+    setValue('#month', date[1]);
+    setValue('#year', date[2]);
+}
+
+//reset form values
 const resetForm = ()=>{
     setValue('#name','');
     unsetSelectedValue('[name = profile]');
@@ -167,4 +199,18 @@ const setTextValue = (id , value) => {
     const element = document.querySelector(id);
     element.textContent = value;
 }
+
+const setSelectedValue = (propertyValue, value)=> {
+    let allItems = document.querySelectorAll(propertyValue);
+    allItems.forEach(item =>{
+        if(Array.isArray(value)){
+            if(value.includes(item.value)){
+                item.checked = true;
+            }
+        }
+        else if (item.value === value)
+            item.checked = true;
+    });
+}
+
 
